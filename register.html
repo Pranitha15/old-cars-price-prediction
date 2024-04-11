@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <style>
+        /* Define your CSS styles here */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+    <script>
+        function togglePasswordVisibility() {
+            var passwordInput = document.getElementById("upassword");
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+            } else {
+                passwordInput.type = "password";
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Register</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form method="POST" action="/register">
+            <label for="uname">Name:</label><br>
+            <input type="text" id="uname" name="uname" required><br>
+            <label for="uemail">Email:</label>
+            <input type="email" id="uemail" name="uemail" required>
+            {% if error_msg %}
+                <p class="error">{{ error_msg }}</p>
+            {% endif %}
+            <label for="upassword">Password:</label><br>
+            <input type="password" id="upassword" name="upassword" required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}" title="Password must contain at least one digit, one uppercase letter, one lowercase letter, one special character, and at least 8 characters long"><br>
+            <input type="checkbox" id="showPassword" onclick="togglePasswordVisibility()">
+            <label for="showPassword">Show Password</label><br>
+            <span id="passwordError" class="error"></span><br><br>
+            <input type="submit" value="Register">
+        </form>
+        
+    </div>
+</body>
+</html>

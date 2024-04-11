@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head xmlns="http://www.w3.org/1999/xhtml">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css">
+
+    <!-- JQuery CDN -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <title>Old Cars' Price Predictor</title>
+</head>
+<body class="bg-dark">
+    <div class="container">
+        <div class="row">
+            <div class="card">
+                <div class="card-header" style="text-align: center">
+                    <h1>Old Car's Price Predictor</h1>
+                </div>
+                <div class="card-body" style="text-align: center">
+                    <h5>Fill the details below to predict the price of a car </h5>
+                    <br>
+                    <form method="POST" action="#" accept-charset="utf-8">
+                        <div class="col-md-12 form-group">
+                            <label><b>Select the company <span class="text-danger">*</span></b></label><br>
+                            <select class="selectpicker form-control" id="company" name="company" required="1" onchange="show_car_models(this.id, 'car_model')" style="cursor: pointer;" onclick="validateBtn()">
+                                {% for each_company in companies %}
+                                    <option value="{{ each_company }}">{{ each_company }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-12 form-group my-3">
+                            <label><b>Select the model <span class="text-danger">*</span></b></label><br>
+                            <select class="selectpicker form-control" id="car_model" name="car_model" required="1" style="cursor: pointer;" onclick="validateBtn()">
+                                <option>Select Car Model As Per Company</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <label><b>Select Year of Purchase <span class="text-danger">*</span></b></label><br>
+                            <select class="selectpicker form-control" id="purchase_year" name="purchase_year" required="1" style="cursor: pointer;" onclick="validateBtn()">
+                                {% for each_year in purchase_year %}
+                                    <option value="{{ each_year }}">{{ each_year }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-12 form-group my-3">
+                            <label><b>Select the Fuel Type <span class="text-danger">*</span></b> </label><br>
+                            <select class="selectpicker form-control" id="fuel_type" name="fuel_type" required="1" style="cursor: pointer;" onclick="validateBtn()">
+                                {% for fuel in fuel_types %}
+                                    <option value="{{ fuel }}">{{ fuel }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <label><b>Enter the Number of Kilometres that the car has travelled <span class="text-danger">*</span></b></label><br>
+                            <input type="text" class="form-control" id="kms_driven" name="kms_driven" placeholder="Enter the kilometres driven" onkeyup="validateBtn()">
+                        </div>
+                        <div class="mt-3">
+                            <small id="must" class="text-danger">Asterick (*) marked fields are required!</small><br>
+                            <button class="btn btn-success" id="send" onclick="submit_data()" disabled>Predict Price</button>
+                            <button class="btn btn-primary" id="blank" onclick="reset_form()" disabled>Reset Form</button>
+                        </div>
+                    </form>
+                    <br>
+                    <div class="row">
+                        <div class="col-12" style="text-align: center">
+                            <h4 class="text-danger" id="prediction"></h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="mt-4" style="color: rgba(255, 255, 255, 0.75); text-align: center;">
+        <a href="/logout"><h2>Logout</h2></a> 
+    </footer>
+
+    <script>
+        function show_car_models(company_id, car_model_id)
+        {
+            var company = document.getElementById(company_id)
+            var car_model = document.getElementById(car_model_id)
+            
+            console.log(company.value)
+            
+            // car_model.value = ""
+            // car_model.innerHTML = ""
+            
+            {% for company in companies %}
+                if( company.value == "{{ company }}")
+                {
+                    {% for model in car_models %}
+                        {% if company in model %}
+                            var newOption = document.createElement("option")
+                            newOption.value = "{{ model }}"
+                            newOption.innerHTML = "{{ model }}"
+                            car_model.options.add(newOption)
+                        {% endif %}
+                    {% endfor %}
+                }
+            {% endfor %}
+        }
+    
+        function form_handler(event) 
+        {
+            event.preventDefault()
+        }
+
+        function submit_data()
+        {
+            document.querySelector("form").addEventListener("submit", form_handler)
+    
+            var fd = new FormData(document.querySelector("form"))
+    
+            var xhr = new XMLHttpRequest({mozSystem: true})
+    
+            xhr.open("POST", "/predict", true)
+            document.getElementById("prediction").innerHTML = "Wait! Predicting Price..."
+            
+            xhr.onreadystatechange = function() {
+                if(xhr.readyState == XMLHttpRequest.DONE) {
+                    document.getElementById("prediction").innerHTML="Predicted Price: ₹"+xhr.responseText
+                }
+            }
+    
+            // xhr.onload = function(){ }
+    
+            xhr.send(fd)
+        }
+
+        function validateBtn()  
+        {
+            var company = document.getElementById("company").value
+            var car_model = document.getElementById("car_model").value
+            var purchase_year = document.getElementById("purchase_year").value
+            var fuel_type = document.getElementById("fuel_type").value
+            var kms_driven = document.getElementById("kms_driven").value
+
+            var predictBtn = document.getElementById("send")
+            var resetBtn = document.getElementById("blank")
+            var mustMessage = document.getElementById("must")
+
+            if(company != "Select Company" && car_model != "Select Car Model As Per Company" && purchase_year != "Select Year" && 
+            fuel_type != "Select Fuel Type" && kms_driven != "") {
+                if(!isNaN(kms_driven)) {
+                    predictBtn.disabled = false
+                    mustMessage.innerHTML = ""
+                } else {
+                    predictBtn.disabled = true
+                    mustMessage.innerHTML = '"<i>Kms Driven</i>" field should have a numeric value!'
+                }
+            } else {
+                predictBtn.disabled = true
+                mustMessage.innerHTML = "Asterick (*) marked fields are required!"
+            }
+
+            if(company != "Select Company" || car_model != "Select Car Model As Per Company" || purchase_year != "Select Year" || 
+            fuel_type != "Select Fuel Type" || kms_driven != "") {
+                resetBtn.disabled = false
+            } else {
+                resetBtn.disabled = true
+            }
+        }
+
+
+        
+
+        function reset_form()
+        {
+            // document.querySelector("form").reset()
+            window.location.reload();
+            // document.getElementById("prediction").innerHTML = ""
+        }
+    </script>    
+
+    <!-- JQuery, Bootstrap JS and Popper -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
+</body>
+</html>
+
+    
